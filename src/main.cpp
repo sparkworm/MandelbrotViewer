@@ -1,47 +1,9 @@
 #include <iostream>
+#include <string>
 #include "image_data.h"
-#include "fragment_circle.h"
 #include "fragment_mandelbrot.h"
-// only for test function
-#include <cmath>
 
-// can be called for every pixel with a pointer to the color of that pixel.
-void fragment(double x, double y, Color* color) {
-  // test logic for creating a circle
-  double center_x = 0.5;
-  double center_y = 0.5;
-  double delt_x = center_x - x;
-  double delt_y = center_y - y;
-  if (sqrt(delt_x*delt_x + delt_y*delt_y) < 0.25) {
-    color->r = 255;
-  }
-  else color->r = 0;
-}
-
-int main() {
-  std::cout << "creating simple rectangle" << std::endl;
-  ImageData rectangle(256, 256);
-  std::cout << rectangle.encode_image("test_rect.png") << std::endl;
-
-  std::cout << "creating a circle with fragment method" << std::endl;
-  ImageData circle(256, 256);
-  for (unsigned r=0; r<circle.height; ++r) {
-    for (unsigned c=0; c<circle.width; ++c) {
-      fragment(double(c) / circle.width, double(r) / circle.height, circle.get_pixel(r, c));
-    }
-  }
-  std::cout << circle.encode_image("test_circle.png") << std::endl;
-
-  std::cout << "creating a circle with abstract fragment method" << std::endl;
-  ImageData circle2(256, 256);
-  FragmentCircle circ_frag;
-  for (unsigned r=0; r<circle.height; ++r) {
-    for (unsigned c=0; c<circle.width; ++c) {
-      circ_frag.process(double(c) / circle2.width, double(r) / circle2.height, circle2.get_pixel(r, c));
-    }
-  }
-  std::cout << circle2.encode_image("test_circle2.png") << std::endl;
-
+/**
   std::cout << "test mandelbrot" << std::endl;
   ImageData mb(512, 512);
   FragmentMandelbrot mb_frag;
@@ -50,6 +12,88 @@ int main() {
       mb_frag.process(double(c) / mb.width, double(r) / mb.height, mb.get_pixel(r, c));
     }
   }
-  std::cout << mb.encode_image("test_mandelbrot.png") << std::endl;
+  std::cout << mb.encode_image("test_mandelbrot.png") << std::endl; 
+ */
+
+int main() {
+  std::cout << "Select resolution side length (will be square): ";
+  int res;
+  std::cin >> res;
+  // create image data of specified size
+  ImageData image(res, res);
+  FragmentMandelbrot mb_frag;
+  while (1) {
+    std::cout << "\nEnter one of the following keys to take an action:   \n\
+\ti - set max iterations\n\
+\to - set offset\n\
+\tz - set zoom\n\
+\ts - view current settings\n\
+\tr - reset to default values\n\
+\tg - generate image with current settings\n\
+\tq - quit\n\
+>>";
+    std::string input;
+    std::cin >> input;
+    if (input == "i") {
+      std::cout << "Set max iterations (will have a large performance impact): ";
+      int it;
+      std::cin >> it;
+      mb_frag.max_iterations = it;
+      std::cout << "max_iterations set to " << it << std::endl;
+    }
+    else if (input == "o") {
+      std::cout << "X offset: ";
+      double x_off;
+      std::cin >> x_off;
+      mb_frag.offset_x = x_off;
+      std::cout << "Y offset: ";
+      double y_off;
+      std::cin >> y_off;
+      mb_frag.offset_y = y_off;
+      std::cout << "Offset set to " << x_off << ", " << y_off << std::endl;
+    }
+    else if (input == "z") {
+      std::cout << "Set zoom level (1.0 default, higher numbers are 'zoomed-in': ";
+      double zoom;
+      std::cin >> zoom;
+      mb_frag.zoom = zoom;
+      std::cout << "Zoom set to " << zoom << std::endl;
+    }
+    else if (input == "s") {
+      std::cout << "Max iterations: " << mb_frag.max_iterations
+		<< "\nX offset: " << mb_frag.offset_x
+		<< "\nY offset: " << mb_frag.offset_y
+		<< "\nZoom: " << mb_frag.zoom << std::endl;
+    }
+    else if (input == "r") {
+      std::cout << "Resetting to defaults..." << std::endl;
+      mb_frag.max_iterations = FragmentMandelbrot::DEFAULT_MAX_ITERATIONS;
+      mb_frag.offset_x = FragmentMandelbrot::DEFAULT_OFFSET_X;
+      mb_frag.offset_y = FragmentMandelbrot::DEFAULT_OFFSET_Y;
+      mb_frag.zoom = FragmentMandelbrot::DEFAULT_ZOOM;
+    }
+    else if (input == "g") {
+      std::cout << "Enter a name for the output file (.png will be appended): ";
+      std::string name;
+      std::cin >> name;
+      name += ".png";
+      for (unsigned r=0; r<image.height; ++r) {
+	for (unsigned c=0; c<image.width; ++c) {
+	  mb_frag.process(double(c) / image.width, double(r) / image.height, image.get_pixel(r, c));
+	}
+      }
+      int res = image.encode_image(name);
+      if (res == 0) {
+	std::cout << "image " << name << " created successfully" << std::endl;
+      }
+      else std::cout << "Error " << res << " in creating image" << std::endl;
+    }
+    else if (input == "q") {
+      break;
+    }
+    else {
+      std::cout << "unrecognized input: " << input << std::endl;
+    }
+  }	 
 }
 

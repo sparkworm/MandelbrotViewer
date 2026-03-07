@@ -3,8 +3,10 @@
 #include "utils.h"
 
 void FragmentMandelbrot::process(double pixel_x, double pixel_y, Color* color) {
-  double x0 = (pixel_x + offset_x) / zoom * 2.47 - 2.0;
-  double y0 = (pixel_y - offset_y) / zoom * 2.24 - 1.12;
+  //double x0 = (pixel_x + offset_x) / zoom * 2.47 - 2.0;
+  //double y0 = (pixel_y - offset_y) / zoom * 2.24 - 1.12;
+  double x0 = (pixel_x - 0.5) / zoom + offset_x;
+  double y0 = (pixel_y - 0.5) / zoom + offset_y;
 
   double x = 0.0;
   double y = 0.0;
@@ -24,7 +26,7 @@ void FragmentMandelbrot::process(double pixel_x, double pixel_y, Color* color) {
   }
   // either within fractal, or insufficient iterations to prove outside fractal: treat as inside
   if (i==max_iterations) {
-    color->r = 0;
+    *color = Color(0,0,0,255);
   }
   // outside of fractal: use time until termination to ascribe a hue
   else *color = rgba_from_hsva((double)i/max_iterations, 1.0, 1.0, 1.0);
