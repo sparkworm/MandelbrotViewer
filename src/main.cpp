@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <chrono>
 #include "image_data.h"
 #include "fragment_mandelbrot.h"
 
@@ -77,14 +78,20 @@ int main() {
       std::string name;
       std::cin >> name;
       name += ".png";
+      // start timer
+      auto start = std::chrono::high_resolution_clock::now();
       for (unsigned r=0; r<image.height; ++r) {
 	for (unsigned c=0; c<image.width; ++c) {
 	  mb_frag.process(double(c) / image.width, double(r) / image.height, image.get_pixel(r, c));
 	}
       }
+      auto end = std::chrono::high_resolution_clock::now();
+      std::chrono::duration<double, std::milli> duration = end - start;
+      
       int res = image.encode_image(name);
       if (res == 0) {
-	std::cout << "image " << name << " created successfully" << std::endl;
+	std::cout << "Image " << name << " created successfully in " << duration.count()/1000.0 << " seconds"
+		  << std::endl;
       }
       else std::cout << "Error " << res << " in creating image" << std::endl;
     }
