@@ -1,6 +1,7 @@
 #include <iostream>
 #include "image_data.h"
 #include "fragment_circle.h"
+#include "fragment_mandelbrot.h"
 // only for test function
 #include <cmath>
 
@@ -40,5 +41,15 @@ int main() {
     }
   }
   std::cout << circle2.encode_image("test_circle2.png") << std::endl;
+
+  std::cout << "test mandelbrot" << std::endl;
+  ImageData mb(512, 512);
+  FragmentMandelbrot mb_frag;
+  for (unsigned r=0; r<mb.height; ++r) {
+    for (unsigned c=0; c<mb.width; ++c) {
+      mb_frag.process(double(c) / mb.width, double(r) / mb.height, mb.get_pixel(r, c));
+    }
+  }
+  std::cout << mb.encode_image("test_mandelbrot.png") << std::endl;
 }
 
