@@ -6,10 +6,11 @@
 #include "image_data.h"
 #include "fragment_mandelbrot.h"
 
-std::string generate_name(FragmentMandelbrot& mb_frag, int supersampling) {
+std::string generate_name(ImageData& image, FragmentMandelbrot& mb_frag, int supersampling) {
   std::stringstream ss;
   ss << "x:" << mb_frag.offset_x << "_y:" << mb_frag.offset_y << "_z:" << mb_frag.zoom << "_i:"
-			      << mb_frag.max_iterations << "_ss:" << supersampling;
+     << mb_frag.max_iterations << "_ss:" << supersampling
+     << "_w:" << image.width << "_h:" << image.height;
   return ss.str();
 }
 
@@ -77,15 +78,8 @@ void reset_settings(FragmentMandelbrot& mb_frag, int& supersampling) {
   supersampling = 1;
 }
 
-void generate_image(ImageData& image, FragmentMandelbrot& mb_frag, int supersampling) {
-  // auto generated names will cause the file to be overwritten, but with an identical image
-  std::cout << "Enter a name for the output file, or leave blank for auto-gen (.png will be appended): ";
-  std::string name;
-  std::getline(std::cin, name);
-  if (name == "") {
-    name = generate_name(mb_frag, supersampling);
-  }
-  name += ".png";
+void generate_image(ImageData& image, std::string& name, FragmentMandelbrot& mb_frag, int supersampling) {
+  std::cout << "Generating " << name << std::endl;
   // start timer
   auto start = std::chrono::high_resolution_clock::now();
   if (supersampling == 1) {
@@ -148,7 +142,18 @@ int main() {
       reset_settings(mb_frag, supersampling);
     }
     else if (input == "g") {
-      generate_image(image, mb_frag, supersampling);
+      // auto generated names will cause the file to be overwritten, but with an identical image
+      std::cout << "Enter a name for the output file, or leave blank for auto-gen (.png will be appended): ";
+      std::string name;
+      // consume newline character left by the input "g\n" that certainly led us here
+      std::getline(std::cin, name);
+      // get actual input
+      std::getline(std::cin, name);
+      if (name == "") {
+	name = generate_name(image, mb_frag, supersampling);
+      }
+      name += ".png";
+      generate_image(image, name, mb_frag, supersampling);
     }
     else if (input == "q") {
       break;
