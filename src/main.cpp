@@ -85,16 +85,20 @@ void generate_image(ImageData& image, std::string& name, FragmentMandelbrot& mb_
   if (supersampling == 1) {
     for (unsigned r=0; r<image.height; ++r) {
       for (unsigned c=0; c<image.width; ++c) {
-	mb_frag.process(double(c) / image.width, double(r) / image.height, image.get_pixel(r, c));
+	// Technically not passing a UV coordinate
+	mb_frag.process((double(c) / image.height - ((double)image.width / image.height) / 2),
+			double(r) / image.height, image.get_pixel(r, c));
       }
     }
   }
   else {
     ImageData large_image(image.width * supersampling, image.height * supersampling);
+    // TODO: should probably put in its own function to avoid duplicated code
     for (unsigned r=0; r<large_image.height; ++r) {
       for (unsigned c=0; c<large_image.width; ++c) {
-	mb_frag.process(double(c) / large_image.width, double(r) / large_image.height,
-			large_image.get_pixel(r, c));
+	// Technically not passing a UV coordinate
+	mb_frag.process(double(c) / large_image.height - ((double)large_image.width / large_image.height / 2),
+			double(r) / large_image.height,	large_image.get_pixel(r, c));
       }
     }
     // downscale
@@ -112,11 +116,13 @@ void generate_image(ImageData& image, std::string& name, FragmentMandelbrot& mb_
 }
 
 int main() {
-  std::cout << "Select resolution side length (will be square): ";
-  int res;
-  std::cin >> res;
+  std::cout << "Select resolution side length:\nX: ";
+  int xres, yres;
+  std::cin >> xres;
+  std::cout << "Y: ";
+  std::cin >> yres;
   // create image data of specified size
-  ImageData image(res, res);
+  ImageData image(xres, yres);
   FragmentMandelbrot mb_frag;
   // the number of pixels in either direction that will form a single pixel on the output image
   int supersampling = 1;

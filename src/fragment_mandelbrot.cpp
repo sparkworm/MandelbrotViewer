@@ -5,7 +5,7 @@
 void FragmentMandelbrot::process(double pixel_x, double pixel_y, Color* color) {
   //double x0 = (pixel_x + offset_x) / zoom * 2.47 - 2.0;
   //double y0 = (pixel_y - offset_y) / zoom * 2.24 - 1.12;
-  double x0 = (pixel_x - 0.5) / zoom + offset_x;
+  double x0 = (pixel_x - 0.0) / zoom + offset_x;
   double y0 = (pixel_y - 0.5) / zoom + offset_y;
 
   double x = 0.0;
